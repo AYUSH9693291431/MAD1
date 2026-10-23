@@ -830,3 +830,22 @@ footer {
     transition: none;
   }
 }
+
+/* Show/hide password button that sits flush against its input */
+.input-group > .form-control:not(:last-child) {
+  border-right: 0;
+}
+
+.password-toggle {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-color: var(--line-strong);
+  box-shadow: none;
+  color: var(--muted);
+  padding: 0 0.85rem;
+}
+
+.password-toggle:hover,
+.password-toggle:focus {
+  color: var(--ink);
+}
