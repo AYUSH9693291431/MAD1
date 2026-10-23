@@ -1,0 +1,41 @@
+{% macro badge(status) -%}
+{%- set tones = {
+  'Draft': 'slate', 'Slot Creation': 'sky', 'Booking Open': 'emerald', 'Closed': 'amber', 'Completed': 'violet',
+  'Available': 'emerald', 'Full': 'amber', 'Cancelled': 'rose', 'Booked': 'indigo',
+  'Pending': 'amber', 'Approved': 'emerald', 'Deactivated': 'slate', 'Active': 'emerald', 'Inactive': 'slate'
+} -%}
+<span class="pill pill-{{ tones.get(status, 'slate') }}"><span class="dot"></span>{{ status }}</span>
+{%- endmacro %}
+
+{% macro slot_time(slot) -%}
+{{ slot.date.strftime('%d %b %Y') }}, {{ slot.start_time.strftime('%H:%M') }}–{{ slot.end_time.strftime('%H:%M') }}
+{%- endmacro %}
+
+{% macro stat(label, value, icon='') -%}
+<div class="card stat-card h-100">
+  <div class="card-body d-flex align-items-center gap-3">
+    {% if icon %}<span class="stat-icon"><i class="bi bi-{{ icon }}"></i></span>{% endif %}
+    <div>
+      <div class="value">{{ value }}</div>
+      <div class="label">{{ label }}</div>
+    </div>
+  </div>
+</div>
+{%- endmacro %}
+
+{# Coloured circle with a person's initials (titles like "Dr." are skipped). #}
+{% macro avatar(name, size='') -%}
+{%- set parts = name.replace('Dr. ', '').replace('Prof. ', '').split() -%}
+{%- set initials = (parts[0][0] ~ (parts[-1][0] if parts|length > 1 else '')) if parts else '?' -%}
+<span class="avatar avatar-{{ name|length % 6 }} {{ 'avatar-' ~ size if size }}" aria-hidden="true">{{ initials|upper }}</span>
+{%- endmacro %}
+
+{% macro field(name, label, form, type='text', required=false, help='') -%}
+<div class="mb-3">
+  <label class="form-label" for="{{ name }}">{{ label }}</label>
+  <input class="form-control" id="{{ name }}" name="{{ name }}" type="{{ type }}"
+         value="{{ '' if form.get(name) is none else form.get(name) }}"
+         {{ 'required' if required }} {{ kwargs | xmlattr }}>
+  {% if help %}<div class="form-text">{{ help }}</div>{% endif %}
+</div>
+{%- endmacro %}

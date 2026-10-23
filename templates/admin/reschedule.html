@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "_macros.html" import slot_time %}
+{% block title %}Reschedule Booking{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-9 col-lg-7">
+    <div class="card">
+      <div class="card-body p-4">
+        <h1 class="h4 mb-3">Reschedule booking #{{ booking.id }}</h1>
+        <dl class="row small">
+          <dt class="col-4">Student</dt><dd class="col-8">{{ booking.student.user.name }} ({{ booking.student.roll_number }})</dd>
+          <dt class="col-4">Examination</dt><dd class="col-8">{{ booking.slot.exam.course.code }} · {{ booking.slot.exam.name }}</dd>
+          <dt class="col-4">Current slot</dt><dd class="col-8">#{{ booking.slot.id }} · {{ slot_time(booking.slot) }} with {{ booking.slot.examiner.user.name }}</dd>
+        </dl>
+        {% if options %}
+        <form method="post">
+          <p class="mb-2">Move to:</p>
+          {% for s in options %}
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="slot_id" value="{{ s.id }}" id="slot{{ s.id }}" required>
+            <label class="form-check-label" for="slot{{ s.id }}">
+              #{{ s.id }} · {{ slot_time(s) }} · {{ s.examiner.user.name }} · {{ s.available_seats }} seat{{ 's' if s.available_seats != 1 }} free
+            </label>
+          </div>
+          {% endfor %}
+          <p class="small text-muted mt-3">The current booking is kept in history as Cancelled, and a new booking is created in the chosen slot.</p>
+          <button class="btn btn-primary">Reschedule</button>
+          <a class="btn btn-outline-secondary" href="{{ url_for('admin.bookings') }}">Cancel</a>
+        </form>
+        {% else %}
+          <div class="alert alert-warning mb-0">No other slot of this examination has free seats that don't clash with the student's other bookings.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

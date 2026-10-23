@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% from "_macros.html" import stat, slot_time %}
+{% block title %}Student Dashboard{% endblock %}
+{% block content %}
+<h1 class="h3 mb-1">Welcome, {{ current_user.name }}</h1>
+<p class="text-muted mb-4">{{ current_user.student.roll_number }}{{ " · " ~ current_user.student.program if current_user.student.program }}</p>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">{{ stat('Open for booking', open_exams|length, 'journal-text') }}</div>
+  <div class="col-6 col-lg-3">{{ stat('Available slots', open_slots|length, 'calendar3') }}</div>
+  <div class="col-6 col-lg-3">{{ stat('Upcoming exams', upcoming|length, 'clock') }}</div>
+  <div class="col-6 col-lg-3">{{ stat('Published results', results|length, 'award') }}</div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header bg-white d-flex justify-content-between"><h2 class="mb-0">Examinations open for booking</h2><a class="small" href="{{ url_for('student.exams') }}">Browse all</a></div>
+      <ul class="list-group list-group-flush">
+        {% for e in open_exams %}
+        {% set free = e.slots|selectattr('status', 'equalto', 'Available')|list|length %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span><strong>{{ e.name }}</strong><div class="small text-muted">{{ e.course.code }} · {{ e.exam_type }} · book by {{ e.booking_end.strftime('%d %b %Y') }}</div></span>
+          <a class="btn btn-sm btn-glass" href="{{ url_for('student.exam_detail', exam_id=e.id) }}">{{ free }} slot{{ 's' if free != 1 }} · View</a>
+        </li>
+        {% else %}<li class="list-group-item text-muted">Nothing new to book right now.</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header bg-white d-flex justify-content-between"><h2 class="mb-0">Upcoming examinations (booked slots)</h2><a class="small" href="{{ url_for('student.schedule') }}">Schedule</a></div>
+      <ul class="list-group list-group-flush">
+        {% for b in upcoming %}
+        <li class="list-group-item">
+          <strong>{{ b.slot.exam.name }}</strong> · {{ slot_time(b.slot) }}
+          <div class="small text-muted">{{ b.slot.exam.course.code }} · {{ b.slot.venue or 'Venue to be announced' }} · Examiner {{ b.slot.examiner.user.name }}</div>
+        </li>
+        {% else %}<li class="list-group-item text-muted">No upcoming examinations.</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header bg-white"><h2 class="mb-0">Available examination slots</h2></div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light"><tr><th>Examination</th><th>When</th><th>Examiner</th><th>Venue</th><th>Seats left</th><th></th></tr></thead>
+          <tbody>
+            {% for s in open_slots %}
+            <tr>
+              <td><strong>{{ s.exam.name }}</strong><div class="small text-muted">{{ s.exam.course.code }} · {{ s.exam.exam_type }}</div></td>
+              <td>{{ slot_time(s) }}</td>
+              <td>{{ s.examiner.user.name }}</td>
+              <td>{{ s.venue or '—' }}</td>
+              <td>{{ s.available_seats }} / {{ s.capacity }}</td>
+              <td class="text-end">
+                <form method="post" action="{{ url_for('student.book', slot_id=s.id) }}">
+                  <button class="btn btn-sm btn-primary">Book</button>
+                </form>
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" class="text-center text-muted py-4">No slots are open for booking right now.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header bg-white d-flex justify-content-between"><h2 class="mb-0">Published results</h2><a class="small" href="{{ url_for('student.results') }}">All results</a></div>
+      <ul class="list-group list-group-flush">
+        {% for b in results %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span><strong>{{ b.slot.exam.name }}</strong> <span class="small text-muted">· {{ b.slot.exam.course.code }}</span></span>
+          <a href="{{ url_for('student.result_detail', booking_id=b.id) }}">{{ '%g'|format(b.evaluation.total_marks) }} / {{ '%g'|format(b.slot.exam.max_marks) }}</a>
+        </li>
+        {% else %}<li class="list-group-item text-muted">No results published yet.</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

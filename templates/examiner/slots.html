@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge, slot_time %}
+{% block title %}My Slots{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4">My slots</h1>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light"><tr><th>ID</th><th>Examination</th><th>When</th><th>Venue</th><th>Booked</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for s in slots %}
+        <tr>
+          <td>{{ s.id }}</td>
+          <td>{{ s.exam.name }}<div class="small text-muted">{{ s.exam.course.code }}</div></td>
+          <td>{{ slot_time(s) }}</td>
+          <td>{{ s.venue or '—' }}</td>
+          <td>{{ s.active_bookings|length }} / {{ s.capacity }}</td>
+          <td>{{ badge(s.status) }}</td>
+          <td class="text-end">
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('examiner.slot_detail', slot_id=s.id) }}">Students</a>
+            {% if s.exam.status == 'Slot Creation' and not s.bookings %}
+              <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('examiner.slot_form', slot_id=s.id) }}">Edit</a>
+              <form class="d-inline" method="post" action="{{ url_for('examiner.delete_slot', slot_id=s.id) }}">
+                <button class="btn btn-sm btn-outline-danger">Remove</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-center text-muted py-4">You haven't created any slots yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

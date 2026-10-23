@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}{{ 'Edit' if exam.id else 'New' }} Examination{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body p-4">
+        <h1 class="h4 mb-4">{{ 'Edit examination' if exam.id else 'New examination' }}</h1>
+        {% if not courses %}
+          <div class="alert alert-warning">Create a <a href="{{ url_for('admin.course_form') }}">course</a> first.</div>
+        {% endif %}
+        <form method="post">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label" for="course_id">Course</label>
+              <select class="form-select" id="course_id" name="course_id" required>
+                <option value="">Choose...</option>
+                {% for c in courses %}
+                  <option value="{{ c.id }}" {{ 'selected' if form.get('course_id')|string == c.id|string }}>{{ c.code }} · {{ c.name }}{{ ' (inactive)' if c.status != 'Active' }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label" for="exam_type">Examination type</label>
+              <select class="form-select" id="exam_type" name="exam_type" required>
+                <option value="">Choose...</option>
+                {% for t in types %}<option {{ 'selected' if form.get('exam_type') == t }}>{{ t }}</option>{% endfor %}
+              </select>
+            </div>
+          </div>
+          {{ field('name', 'Examination name', form, required=true, maxlength=120, placeholder='e.g. Project Viva – Sep 2026') }}
+          <div class="mb-3">
+            <label class="form-label" for="description">Description / instructions</label>
+            <textarea class="form-control" id="description" name="description" rows="2" maxlength="2000">{{ form.get('description') or '' }}</textarea>
+          </div>
+          <div class="row">
+            <div class="col-sm-6">{{ field('duration', 'Duration per student (minutes)', form, type='number', required=true, min=5, max=600) }}</div>
+            <div class="col-sm-6">{{ field('max_marks', 'Maximum marks', form, type='number', required=true, min=1, max=1000, step='0.5') }}</div>
+          </div>
+          <h2 class="h6 mt-2">Timeline</h2>
+          <div class="row">
+            <div class="col-sm-6">{{ field('slot_creation_start', 'Slot creation starts', form, type='date', required=true) }}</div>
+            <div class="col-sm-6">{{ field('slot_creation_end', 'Slot creation ends', form, type='date', required=true) }}</div>
+            <div class="col-sm-6">{{ field('booking_start', 'Booking starts', form, type='date', required=true) }}</div>
+            <div class="col-sm-6">{{ field('booking_end', 'Booking ends (cancellation deadline)', form, type='date', required=true) }}</div>
+          </div>
+          <p class="small text-muted">Slot creation must end on or before booking starts. Examiners can create slots only while the status is
+            <em>Slot Creation</em> and today is inside its dates; students can book only while the status is <em>Booking Open</em> and today is inside the booking dates.</p>
+          <button class="btn btn-primary">Save</button>
+          <a class="btn btn-outline-secondary" href="{{ url_for('admin.exam_detail', exam_id=exam.id) if exam.id else url_for('admin.exams') }}">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

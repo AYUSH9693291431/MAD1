@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<div class="row align-items-center g-5 py-lg-4">
+  <div class="col-lg-6 auth-hero">
+    <div class="eyebrow mb-3">Examination Management Portal</div>
+    <h1 class="mb-4">Run every exam,<br><em>from slot to scorecard.</em></h1>
+    <p class="lead mb-4">Schedule examinations, let examiners open slots, let students book them, and publish rubric-based results, all in one place.</p>
+    <div class="row g-2 d-none d-md-flex" style="max-width: 31rem">
+      {% for icon, title, text in [
+        ('shield-lock', 'Admin', 'Courses, exams, rubrics, timelines and approvals.'),
+        ('person-badge', 'Examiners', 'Create slots, see booked students, award marks.'),
+        ('mortarboard', 'Students', 'Book slots, track your schedule, view feedback.')] %}
+        <div class="col-12"><div class="role-tile">
+          <span class="stat-icon"><i class="bi bi-{{ icon }}"></i></span>
+          <div><strong>{{ title }}</strong><div class="small text-muted">{{ text }}</div></div>
+        </div></div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card auth-card">
+      <div class="card-body p-4">
+        <h2 class="h4 mb-1">Welcome back</h2>
+        <p class="text-muted small mb-4">Sign in with your username and password.</p>
+        <form method="post">
+          <div class="mb-3">
+            <label class="form-label" for="username">Username</label>
+            <input class="form-control" id="username" name="username" required autofocus autocomplete="username">
+          </div>
+          <div class="mb-4">
+            <label class="form-label" for="password">Password</label>
+            <input class="form-control" id="password" name="password" type="password" required autocomplete="current-password">
+          </div>
+          <button class="btn btn-primary w-100 py-2">Sign in <i class="bi bi-arrow-right"></i></button>
+        </form>
+        <div class="divider my-4">New here?</div>
+        <div class="d-flex gap-2">
+          <a class="btn btn-glass w-50" href="{{ url_for('auth.register', role='student') }}"><i class="bi bi-mortarboard"></i> Student</a>
+          <a class="btn btn-glass w-50" href="{{ url_for('auth.register', role='examiner') }}"><i class="bi bi-person-badge"></i> Examiner</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

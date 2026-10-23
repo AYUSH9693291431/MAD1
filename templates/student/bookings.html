@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge, slot_time %}
+{% block title %}My Bookings{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4">Booking history</h1>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light"><tr><th>ID</th><th>Examination</th><th>Slot</th><th>Examiner</th><th>Booked on</th><th>Status</th><th>Note</th><th></th></tr></thead>
+      <tbody>
+        {% for b in bookings %}
+        <tr>
+          <td>{{ b.id }}</td>
+          <td>{{ b.slot.exam.name }}<div class="small text-muted">{{ b.slot.exam.course.code }}</div></td>
+          <td>{{ slot_time(b.slot) }}</td>
+          <td>{{ b.slot.examiner.user.name }}</td>
+          <td>{{ b.booked_at.strftime('%d %b %Y %H:%M') }}</td>
+          <td>{{ badge(b.status) }}</td>
+          <td class="wrap small">{{ b.note or '' }}</td>
+          <td class="text-end">
+            {% if b.status == 'Booked' and b.slot.exam.booking_open and not b.slot.has_started %}
+              <form method="post" action="{{ url_for('student.cancel', booking_id=b.id) }}">
+                <button class="btn btn-sm btn-outline-danger">Cancel</button>
+              </form>
+            {% elif b.status == 'Completed' and b.slot.exam.results_published %}
+              <a class="btn btn-sm btn-outline-primary" href="{{ url_for('student.result_detail', booking_id=b.id) }}">Result</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8" class="text-center text-muted py-4">No bookings yet. <a href="{{ url_for('student.exams') }}">Find an examination</a>.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

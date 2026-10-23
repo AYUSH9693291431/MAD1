@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% from "_macros.html" import stat, badge, slot_time %}
+{% block title %}Examiner Dashboard{% endblock %}
+{% block content %}
+<h1 class="h3 mb-1">Welcome, {{ current_user.name }}</h1>
+<p class="text-muted mb-4">{{ current_user.examiner.designation or "Examiner" }} · {{ current_user.examiner.department }}</p>
+<div class="row g-3 mb-4">
+  {% set icons = ['journal-text', 'calendar3', 'people', 'hourglass-split'] %}
+  {% for label, value in stats.items() %}
+    <div class="col-6 col-lg-3">{{ stat(label, value, icons[loop.index0]) }}</div>
+  {% endfor %}
+</div>
+
+<div class="card mb-4">
+  <div class="card-header bg-white"><h2 class="mb-0">Assigned examinations</h2></div>
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead class="table-light"><tr><th>Examination</th><th>Type</th><th>Slot creation window</th><th>My slots</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for e in exams %}
+        {% set mine = e.slots|selectattr('examiner_id', 'equalto', current_user.examiner.id)|rejectattr('status', 'equalto', 'Cancelled')|list %}
+        <tr>
+          <td><strong>{{ e.name }}</strong><div class="small text-muted">{{ e.course.code }} · {{ e.course.name }} · {{ e.duration }} min</div></td>
+          <td>{{ e.exam_type }}</td>
+          <td>{{ e.slot_creation_start.strftime('%d %b') }} – {{ e.slot_creation_end.strftime('%d %b %Y') }}</td>
+          <td>{{ mine|length }}</td>
+          <td>{{ badge(e.status) }}</td>
+          <td class="text-end">
+            {% if e.slot_creation_open %}
+              <a class="btn btn-sm btn-primary" href="{{ url_for('examiner.slot_form', exam_id=e.id) }}"><i class="bi bi-plus-lg"></i> Create slot</a>
+            {% else %}
+              <span class="small text-muted">Slot creation closed</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-center text-muted py-4">The admin hasn't assigned you to any examination yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header bg-white d-flex justify-content-between"><h2 class="mb-0">Upcoming slots</h2><a class="small" href="{{ url_for('examiner.slots') }}">All slots</a></div>
+      <ul class="list-group list-group-flush">
+        {% for s in upcoming %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <a href="{{ url_for('examiner.slot_detail', slot_id=s.id) }}">{{ slot_time(s) }} · {{ s.exam.name }}</a>
+          <span class="small">{{ s.active_bookings|length }}/{{ s.capacity }} booked {{ badge(s.status) }}</span>
+        </li>
+        {% else %}<li class="list-group-item text-muted">No upcoming slots.</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header bg-white"><h2 class="mb-0">Pending evaluations</h2></div>
+      <ul class="list-group list-group-flush">
+        {% for b in pending %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span><strong>{{ b.student.user.name }}</strong> ({{ b.student.roll_number }})<div class="small text-muted">{{ b.slot.exam.name }} · {{ slot_time(b.slot) }}</div></span>
+          {% if b.can_be_evaluated %}
+            <a class="btn btn-sm btn-success" href="{{ url_for('examiner.evaluate', booking_id=b.id) }}">Evaluate</a>
+          {% else %}
+            <span class="small text-muted">Opens at slot time</span>
+          {% endif %}
+        </li>
+        {% else %}<li class="list-group-item text-muted">Nothing pending.</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

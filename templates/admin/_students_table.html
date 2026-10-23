@@ -1,0 +1,21 @@
+{% from "_macros.html" import avatar %}
+<div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr><th>ID</th><th>Roll number</th><th>Name</th><th>Program</th><th>Contact</th><th>Bookings</th><th>Completed</th></tr></thead>
+    <tbody>
+      {% for s in students %}
+      <tr>
+        <td>{{ s.id }}</td>
+        <td>{{ s.roll_number }}</td>
+        <td><div class="d-flex align-items-center gap-2">{{ avatar(s.user.name, 'sm') }}<a class="fw-semibold" href="{{ url_for('admin.student_detail', student_id=s.id) }}">{{ s.user.name }}</a></div></td>
+        <td>{{ s.program or '—' }}</td>
+        <td class="small">{{ s.user.email }}<br>{{ s.user.phone or '' }}</td>
+        <td>{{ s.bookings|length }}</td>
+        <td>{{ s.bookings|selectattr('status', 'equalto', 'Completed')|list|length }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7" class="text-center text-muted py-4">No students found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

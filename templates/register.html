@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-9 col-lg-6">
+    <div class="card">
+      <div class="card-body p-4">
+        <h1 class="h4 mb-1">Create an account</h1>
+        <p class="text-muted small mb-3">Choose who you are, then fill in your details.</p>
+        <ul class="nav nav-pills mb-4">
+          <li class="nav-item"><a class="nav-link {{ 'active' if role == 'student' }}" href="{{ url_for('auth.register', role='student') }}">Student</a></li>
+          <li class="nav-item"><a class="nav-link {{ 'active' if role == 'examiner' }}" href="{{ url_for('auth.register', role='examiner') }}">Examiner</a></li>
+        </ul>
+        <form method="post">
+          <input type="hidden" name="role" value="{{ role }}">
+          {% include "_account_fields.html" %}
+          {% if role == 'student' %}
+            <div class="row">
+              <div class="col-sm-6">{{ field('roll_number', 'Roll number', form, required=true, pattern='[A-Za-z0-9]{4,20}', title='4-20 letters or digits') }}</div>
+              <div class="col-sm-6">{{ field('program', 'Program', form, maxlength=100, placeholder='e.g. BS Data Science') }}</div>
+            </div>
+          {% else %}
+            <div class="row">
+              <div class="col-sm-6">{{ field('department', 'Department', form, required=true, maxlength=100) }}</div>
+              <div class="col-sm-6">{{ field('designation', 'Designation', form, maxlength=100, placeholder='e.g. Assistant Professor') }}</div>
+            </div>
+            <p class="small text-muted">Examiner accounts need the admin's approval before you can use the dashboard.</p>
+          {% endif %}
+          <button class="btn btn-primary w-100">Register as {{ role }}</button>
+        </form>
+        <p class="text-center small mt-3 mb-0">Already registered? <a href="{{ url_for('auth.login') }}">Log in</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

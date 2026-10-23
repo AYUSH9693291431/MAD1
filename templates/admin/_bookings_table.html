@@ -1,0 +1,30 @@
+{% from "_macros.html" import badge, slot_time, avatar %}
+<div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light">
+      <tr><th>ID</th><th>Student</th><th>Examination</th><th>Slot</th><th>Examiner</th><th>Booked on</th><th>Status</th><th>Marks</th><th>Note</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for b in bookings %}
+      <tr>
+        <td>{{ b.id }}</td>
+        <td><div class="d-flex align-items-center gap-2">{{ avatar(b.student.user.name, 'sm') }}<div><a href="{{ url_for('admin.student_detail', student_id=b.student.id) }}">{{ b.student.user.name }}</a><div class="small text-muted">{{ b.student.roll_number }}</div></div></div></td>
+        <td><a href="{{ url_for('admin.exam_detail', exam_id=b.slot.exam.id) }}">{{ b.slot.exam.name }}</a><div class="small text-muted">{{ b.slot.exam.course.code }}</div></td>
+        <td>{{ slot_time(b.slot) }}<div class="small text-muted">Slot #{{ b.slot.id }}</div></td>
+        <td>{{ b.slot.examiner.user.name }}</td>
+        <td>{{ b.booked_at.strftime('%d %b %Y') }}<div class="small text-muted">{{ b.booked_at.strftime('%H:%M') }}</div></td>
+        <td>{{ badge(b.status) }}</td>
+        <td>{{ '%g'|format(b.evaluation.total_marks) ~ ' / ' ~ '%g'|format(b.slot.exam.max_marks) if b.evaluation else '—' }}</td>
+        <td class="wrap small">{{ b.note or '' }}</td>
+        <td class="text-end">
+          {% if b.status == 'Booked' %}
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.reschedule', booking_id=b.id) }}">Reschedule</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="10" class="text-center text-muted py-4">No bookings found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,35 @@
+{# Standalone downloadable page, so it carries its own minimal styles instead of extending base.html. #}
+{% set exam = b.slot.exam %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Scorecard · {{ b.student.roll_number }} · {{ exam.name }}</title>
+  <style>
+    body { font-family: Arial, sans-serif; color: #222; max-width: 720px; margin: 40px auto; padding: 0 16px; }
+    h1 { margin-bottom: 4px; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background: #f2f2f2; }
+    .total { font-size: 1.4em; font-weight: bold; }
+    .muted { color: #666; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <h1>Examination Scorecard</h1>
+  <p class="muted">Examination Management Portal · generated {{ generated.strftime('%d %b %Y %H:%M') }}</p>
+  <table>
+    <tr><th>Student</th><td>{{ b.student.user.name }}</td><th>Roll number</th><td>{{ b.student.roll_number }}</td></tr>
+    <tr><th>Course</th><td>{{ exam.course.code }} · {{ exam.course.name }}</td><th>Examination</th><td>{{ exam.name }} ({{ exam.exam_type }})</td></tr>
+    <tr><th>Date</th><td>{{ b.slot.date.strftime('%d %b %Y') }}</td><th>Examiner</th><td>{{ b.evaluation.examiner.user.name }}</td></tr>
+  </table>
+  <table>
+    <tr><th>Criterion</th><th>Marks</th><th>Weightage</th></tr>
+    {% for s in b.evaluation.scores %}
+    <tr><td>{{ s.rubric.criterion }}</td><td>{{ '%g'|format(s.marks) }} / {{ '%g'|format(s.rubric.max_marks) }}</td><td>{{ '%g'|format(s.rubric.weightage) }}%</td></tr>
+    {% endfor %}
+  </table>
+  <p class="total">Total: {{ '%g'|format(b.evaluation.total_marks) }} / {{ '%g'|format(exam.max_marks) }}</p>
+  <p><strong>Remarks:</strong> {{ b.evaluation.remarks or 'No remarks.' }}</p>
+</body>
+</html>

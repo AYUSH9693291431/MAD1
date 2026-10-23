@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge %}
+{% block title %}Search{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4">Search</h1>
+<form class="row g-2 mb-4" method="get">
+  <div class="col-sm-9 col-md-8">
+    <input class="form-control" name="q" value="{{ q }}" required placeholder="Name, roll number, course code, department or an ID">
+  </div>
+  <div class="col-sm-3 col-md-2"><button class="btn btn-primary w-100"><i class="bi bi-search"></i> Search</button></div>
+</form>
+
+{% if q %}
+  <div class="card mb-4">
+    <div class="card-header bg-white"><h2 class="mb-0">Students ({{ results.students|length }})</h2></div>
+    {% with students = results.students %}{% include "admin/_students_table.html" %}{% endwith %}
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header bg-white"><h2 class="mb-0">Examiners ({{ results.examiners|length }})</h2></div>
+    <ul class="list-group list-group-flush">
+      {% for e in results.examiners %}
+        <li class="list-group-item d-flex justify-content-between">
+          <span>#{{ e.id }} · <strong>{{ e.user.name }}</strong> · {{ e.department }} · {{ e.user.email }}</span>{{ badge(e.status) }}
+        </li>
+      {% else %}<li class="list-group-item text-muted">No examiners match.</li>{% endfor %}
+    </ul>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header bg-white"><h2 class="mb-0">Examinations ({{ results.exams|length }})</h2></div>
+    <ul class="list-group list-group-flush">
+      {% for e in results.exams %}
+        <li class="list-group-item d-flex justify-content-between">
+          <a href="{{ url_for('admin.exam_detail', exam_id=e.id) }}">#{{ e.id }} · {{ e.course.code }} · {{ e.name }}</a>{{ badge(e.status) }}
+        </li>
+      {% else %}<li class="list-group-item text-muted">No examinations match.</li>{% endfor %}
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-header bg-white"><h2 class="mb-0">Bookings ({{ results.bookings|length }})</h2></div>
+    {% with bookings = results.bookings %}{% include "admin/_bookings_table.html" %}{% endwith %}
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Bookings{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4">Bookings</h1>
+<form class="row g-2 mb-3" method="get">
+  <div class="col-sm-6 col-md-5">
+    <select class="form-select" name="exam_id">
+      <option value="">All examinations</option>
+      {% for e in exams %}<option value="{{ e.id }}" {{ 'selected' if exam_id == e.id }}>{{ e.course.code }} · {{ e.name }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="col-sm-3 col-md-3">
+    <select class="form-select" name="status">
+      <option value="">All statuses</option>
+      {% for s in ['Booked', 'Cancelled', 'Completed'] %}<option {{ 'selected' if status == s }}>{{ s }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="col-sm-3 col-md-2"><button class="btn btn-outline-primary w-100">Filter</button></div>
+</form>
+<div class="card">{% include "admin/_bookings_table.html" %}</div>
+{% endblock %}

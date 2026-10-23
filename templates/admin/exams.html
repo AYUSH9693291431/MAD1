@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge %}
+{% block title %}Examinations{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h3 mb-0">Examinations</h1>
+  <a class="btn btn-primary" href="{{ url_for('admin.exam_form') }}"><i class="bi bi-plus-lg"></i> Add examination</a>
+</div>
+<form class="row g-2 mb-3" method="get">
+  <div class="col-sm-5 col-md-4">
+    <select class="form-select" name="course_id">
+      <option value="">All courses</option>
+      {% for c in courses %}<option value="{{ c.id }}" {{ 'selected' if course_id == c.id }}>{{ c.code }} · {{ c.name }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="col-sm-4 col-md-3">
+    <select class="form-select" name="status">
+      <option value="">All statuses</option>
+      {% for s in statuses %}<option {{ 'selected' if status == s }}>{{ s }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="col-sm-3 col-md-2"><button class="btn btn-outline-primary w-100">Filter</button></div>
+</form>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light"><tr><th>ID</th><th>Examination</th><th>Course</th><th>Type</th><th>Slot creation</th><th>Booking</th><th>Slots</th><th>Bookings</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for e in exams %}
+        <tr>
+          <td>{{ e.id }}</td>
+          <td><a class="fw-semibold" href="{{ url_for('admin.exam_detail', exam_id=e.id) }}">{{ e.name }}</a></td>
+          <td>{{ e.course.code }}</td>
+          <td>{{ e.exam_type }}</td>
+          <td>{{ e.slot_creation_start.strftime('%d %b') }} – {{ e.slot_creation_end.strftime('%d %b %Y') }}</td>
+          <td>{{ e.booking_start.strftime('%d %b') }} – {{ e.booking_end.strftime('%d %b %Y') }}</td>
+          <td>{{ e.slots|length }}</td>
+          <td>{{ e.active_bookings|length }}</td>
+          <td>{{ badge(e.status) }}{% if e.results_published %} <span class="badge text-bg-light border">Results out</span>{% endif %}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="9" class="text-center text-muted py-4">No examinations found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

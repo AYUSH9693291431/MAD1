@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}{{ 'Edit' if slot.id else 'New' }} Slot{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card">
+      <div class="card-body p-4">
+        <div class="eyebrow mb-1">{{ exam.course.code }} · {{ exam.name }}</div>
+        <h1 class="h4 mb-1">{{ 'Edit slot #' ~ slot.id if slot.id else 'Create examination slot' }}</h1>
+        <p class="small text-muted mb-4">Each slot lasts {{ exam.duration }} minutes. Slots must be on or after {{ exam.booking_end.strftime('%d %b %Y') }}, when booking closes.</p>
+        <form method="post">
+          <div class="row">
+            <div class="col-sm-6">{{ field('date', 'Date', form, type='date', required=true, min=exam.booking_end.isoformat()) }}</div>
+            <div class="col-sm-6">{{ field('start_time', 'Start time', form, type='time', required=true) }}</div>
+          </div>
+          <div class="row">
+            <div class="col-sm-5">{{ field('capacity', 'Maximum students', form, type='number', required=true, min=1, max=200) }}</div>
+            <div class="col-sm-7">{{ field('venue', 'Venue / meeting link', form, maxlength=120, placeholder='e.g. Lab 2 or a Meet link') }}</div>
+          </div>
+          <button class="btn btn-primary">Save slot</button>
+          <a class="btn btn-outline-secondary" href="{{ url_for('examiner.slots') }}">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

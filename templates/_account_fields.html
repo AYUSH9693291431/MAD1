@@ -1,0 +1,18 @@
+{% from "_macros.html" import field %}
+{# Fields shared by student/examiner registration, admin's "add examiner" and profile editing. #}
+{% set new_account = request.endpoint != 'auth.profile' %}
+{% if new_account %}
+  {{ field('username', 'Username', form, required=true, pattern='[A-Za-z0-9_.]{3,30}', title="3-30 letters, digits, '_' or '.'") }}
+{% endif %}
+{{ field('name', 'Full name', form, required=true, maxlength=120) }}
+<div class="row">
+  <div class="col-sm-7">{{ field('email', 'Email', form, type='email', required=true, maxlength=120) }}</div>
+  <div class="col-sm-5">{{ field('phone', 'Phone', form, type='tel', pattern='\\d{10}', title='10-digit phone number') }}</div>
+</div>
+<div class="row">
+  <div class="col-sm-6">
+    {{ field('password', 'Password' if new_account else 'New password', {}, type='password', required=new_account, minlength=6,
+             placeholder='' if new_account else 'Leave blank to keep') }}
+  </div>
+  <div class="col-sm-6">{{ field('confirm_password', 'Confirm password', {}, type='password', required=new_account, minlength=6) }}</div>
+</div>

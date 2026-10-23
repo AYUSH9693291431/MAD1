@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ student.user.name }}{% endblock %}
+{% block content %}
+<div class="mb-4">
+  <div class="eyebrow mb-1">Student #{{ student.id }}</div>
+  <h1 class="h3 mb-1">{{ student.user.name }}</h1>
+  <div class="text-muted">{{ student.roll_number }} · {{ student.program or 'No program' }} · {{ student.user.email }}{{ ' · ' ~ student.user.phone if student.user.phone }}</div>
+</div>
+<div class="card">
+  <div class="card-header bg-white"><h2 class="mb-0">Complete booking history</h2></div>
+  {% with bookings = student.bookings %}{% include "admin/_bookings_table.html" %}{% endwith %}
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Awaiting Approval{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6 text-center py-5">
+    {% if status == 'Pending' %}
+      <i class="bi bi-hourglass-split display-3 text-warning"></i>
+      <h1 class="h3 mt-3">Waiting for admin approval</h1>
+      <p class="text-muted">Your examiner account has been created. You'll get access to the dashboard once the admin approves it.</p>
+    {% else %}
+      <i class="bi bi-slash-circle display-3 text-secondary"></i>
+      <h1 class="h3 mt-3">Account deactivated</h1>
+      <p class="text-muted">Your examiner account has been deactivated by the admin. Please contact the examination office.</p>
+    {% endif %}
+    <a class="btn btn-outline-primary" href="{{ url_for('auth.logout') }}">Logout</a>
+  </div>
+</div>
+{% endblock %}

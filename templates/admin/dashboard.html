@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% from "_macros.html" import stat, badge, avatar %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<h1 class="h3 mb-1">Admin Dashboard</h1>
+<p class="text-muted mb-4">Everything happening across the portal, at a glance.</p>
+
+<div class="row g-3 mb-4">
+  {% set icons = {'Courses': 'book', 'Examinations': 'journal-text', 'Examiners': 'person-badge', 'Students': 'people',
+                  'Slots': 'calendar3', 'Bookings': 'bookmark-check'} %}
+  {% for label, value in counts.items() %}
+    <div class="col-6 col-md-4 col-xl-2">{{ stat(label, value, icons[label]) }}</div>
+  {% endfor %}
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">Examiner approval requests</h2>
+        <a class="small" href="{{ url_for('admin.examiners', status='Pending') }}">View all</a>
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for e in pending_examiners %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-3">{{ avatar(e.user.name) }}<div><strong>{{ e.user.name }}</strong><div class="small text-muted">{{ e.department }} · {{ e.user.email }}</div></div></div>
+          <form method="post" action="{{ url_for('admin.examiner_status', examiner_id=e.id) }}">
+            <input type="hidden" name="status" value="Approved">
+            <button class="btn btn-sm btn-success">Approve</button>
+          </form>
+        </li>
+        {% else %}
+        <li class="list-group-item text-muted">No pending requests.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">Examinations by status</h2>
+        <a class="small" href="{{ url_for('admin.exam_form') }}"><i class="bi bi-plus-lg"></i> New examination</a>
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for s in statuses %}
+        <li class="list-group-item d-flex justify-content-between">
+          <a class="text-decoration-none" href="{{ url_for('admin.exams', status=s) }}">{{ badge(s) }}</a>
+          <strong>{{ exams_by_status.get(s, 0) }}</strong>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">Recent bookings</h2>
+        <a class="small" href="{{ url_for('admin.bookings') }}">All bookings</a>
+      </div>
+      {% with bookings = recent_bookings %}{% include "admin/_bookings_table.html" %}{% endwith %}
+    </div>
+  </div>
+</div>
+{% endblock %}

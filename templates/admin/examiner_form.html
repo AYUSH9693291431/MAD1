@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}Add Examiner{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-9 col-lg-6">
+    <div class="card">
+      <div class="card-body p-4">
+        <h1 class="h4 mb-1">Add examiner</h1>
+        <p class="text-muted small mb-4">Examiners added here are approved straight away. Share the username and password with them.</p>
+        <form method="post">
+          {% include "_account_fields.html" %}
+          <div class="row">
+            <div class="col-sm-6">{{ field('department', 'Department', form, required=true, maxlength=100) }}</div>
+            <div class="col-sm-6">{{ field('designation', 'Designation', form, maxlength=100) }}</div>
+          </div>
+          <button class="btn btn-primary">Add examiner</button>
+          <a class="btn btn-outline-secondary" href="{{ url_for('admin.examiners') }}">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

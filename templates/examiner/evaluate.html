@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% from "_macros.html" import slot_time %}
+{% block title %}Evaluate{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body p-4">
+        <div class="eyebrow mb-1">{{ exam.course.code }} · {{ exam.name }} · {{ slot_time(booking.slot) }}</div>
+        <h1 class="h4 mb-1">Evaluate {{ booking.student.user.name }}</h1>
+        <p class="text-muted small mb-4">Roll number {{ booking.student.roll_number }} · Booking #{{ booking.id }}</p>
+        <form method="post">
+          <table class="table align-middle">
+            <thead class="table-light"><tr><th>Criterion</th><th class="d-none d-sm-table-cell">Weightage</th><th style="width: 9rem">Marks</th></tr></thead>
+            <tbody>
+              {% for r in exam.rubrics %}
+              {% set name = 'rubric_' ~ r.id %}
+              <tr>
+                <td class="wrap" style="min-width: 0"><label for="{{ name }}" class="fw-semibold">{{ r.criterion }}</label> <span class="small text-muted d-sm-none">· {{ '%g'|format(r.weightage) }}%</span>{% if r.description %}<div class="small text-muted">{{ r.description }}</div>{% endif %}</td>
+                <td class="d-none d-sm-table-cell">{{ '%g'|format(r.weightage) }}%</td>
+                <td>
+                  <div class="input-group input-group-sm flex-nowrap" style="min-width: 6.5rem">
+                    <input class="form-control" id="{{ name }}" name="{{ name }}" type="number" min="0" max="{{ r.max_marks }}" step="0.5" required
+                           value="{{ '' if form.get(name) is none else form.get(name) }}">
+                    <span class="input-group-text">/ {{ '%g'|format(r.max_marks) }}</span>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <p class="small text-muted">Total = Σ (marks ÷ criterion max × weightage) × {{ '%g'|format(exam.max_marks) }} ÷ 100, rounded to 2 decimals.</p>
+          <div class="mb-4">
+            <label class="form-label" for="remarks">Remarks / feedback for the student</label>
+            <textarea class="form-control" id="remarks" name="remarks" rows="3" maxlength="2000">{{ form.get('remarks') or '' }}</textarea>
+          </div>
+          <button class="btn btn-success">Submit marks</button>
+          <a class="btn btn-outline-secondary" href="{{ url_for('examiner.slot_detail', slot_id=booking.slot_id) }}">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

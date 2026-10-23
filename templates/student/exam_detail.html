@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge, slot_time %}
+{% block title %}{{ exam.name }}{% endblock %}
+{% block content %}
+<div class="mb-3">
+  <div class="eyebrow mb-1">{{ exam.course.code }} · {{ exam.course.name }}</div>
+  <h1 class="h3 mb-1">{{ exam.name }} {{ badge(exam.status) }}</h1>
+  <div class="text-muted">{{ exam.exam_type }} · {{ exam.duration }} minutes · {{ '%g'|format(exam.max_marks) }} marks · Booking {{ exam.booking_start.strftime('%d %b') }} – {{ exam.booking_end.strftime('%d %b %Y') }}</div>
+</div>
+{% if exam.description %}<p>{{ exam.description }}</p>{% endif %}
+
+{% if booking %}
+  <div class="alert alert-primary d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <span>Your booking: <strong>{{ slot_time(booking.slot) }}</strong> with {{ booking.slot.examiner.user.name }} {{ badge(booking.status) }}</span>
+    {% if booking.status == 'Booked' and exam.booking_open and not booking.slot.has_started %}
+      <form method="post" action="{{ url_for('student.cancel', booking_id=booking.id) }}">
+        <button class="btn btn-sm btn-outline-danger">Cancel booking</button>
+      </form>
+    {% endif %}
+  </div>
+{% elif not exam.booking_open %}
+  <div class="alert alert-secondary">Booking is not open for this examination.</div>
+{% endif %}
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header bg-white"><h2 class="mb-0">Slots</h2></div>
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead class="table-light"><tr><th>When</th><th>Examiner</th><th>Venue</th><th>Seats left</th><th></th></tr></thead>
+          <tbody>
+            {% for s in exam.slots if s.status != 'Cancelled' %}
+            <tr>
+              <td>{{ slot_time(s) }}</td>
+              <td>{{ s.examiner.user.name }}</td>
+              <td>{{ s.venue or '—' }}</td>
+              <td>{{ s.available_seats }} / {{ s.capacity }}</td>
+              <td class="text-end">
+                {% if booking and booking.slot_id == s.id %}
+                  <span class="badge text-bg-primary">Your slot</span>
+                {% elif exam.booking_open and not booking and s.status == 'Available' and not s.has_started %}
+                  <form method="post" action="{{ url_for('student.book', slot_id=s.id) }}">
+                    <button class="btn btn-sm btn-success">Book</button>
+                  </form>
+                {% else %}
+                  {{ badge(s.status) }}
+                {% endif %}
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center text-muted py-3">No slots yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header bg-white"><h2 class="mb-0">How you'll be evaluated</h2></div>
+      <ul class="list-group list-group-flush">
+        {% for r in exam.rubrics %}
+          <li class="list-group-item d-flex justify-content-between"><span>{{ r.criterion }}</span><span class="text-muted">{{ '%g'|format(r.weightage) }}%</span></li>
+        {% else %}<li class="list-group-item text-muted">Rubric not published.</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

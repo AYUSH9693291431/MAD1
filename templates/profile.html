@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}Edit Profile{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-9 col-lg-6">
+    <div class="card">
+      <div class="card-body p-4">
+        <h1 class="h4 mb-1">Edit profile</h1>
+        <p class="text-muted small mb-4">
+          Username: <strong>{{ current_user.username }}</strong>
+          {% if current_user.role == 'student' %} · Roll number: <strong>{{ current_user.student.roll_number }}</strong>{% endif %}
+        </p>
+        <form method="post">
+          {% include "_account_fields.html" %}
+          {% if current_user.role == 'student' %}
+            {{ field('program', 'Program', form, maxlength=100) }}
+          {% else %}
+            <div class="row">
+              <div class="col-sm-6">{{ field('department', 'Department', form, required=true, maxlength=100) }}</div>
+              <div class="col-sm-6">{{ field('designation', 'Designation', form, maxlength=100) }}</div>
+            </div>
+          {% endif %}
+          <button class="btn btn-primary">Save changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
